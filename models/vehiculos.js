@@ -9,11 +9,11 @@ class Vehiculos{
     }
 
     processString(s) { // 
-        return s.toLowerCase().replace(' ', '_'); // string a minusculas, reemplaza espacios por guion bajo
+        return s.toLowerCase().replace(' ', '_').replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, ''); // string a minusculas, reemplaza espacios por guion bajo
     }
 
     escapeComma(s) {
-        s = s?.replace(new RegExp('"', 'g'), '""'); 
+        s = s?.replace(new RegExp('"', 'g'), ''); 
         return s ? '"' + s + '"' : null;
     }
 
@@ -37,7 +37,7 @@ class Vehiculos{
                     spec.specs
                         .forEach((innerSpec) => {
                             const columnName = prefix + this.processString(innerSpec.name);
-                            if (columns.indexOf(columnName) !== 1) {
+                            if (columns.indexOf((c) => c.replace('_', '') === columnName.replace('_', '')) === -1) {
                                 columns.push(columnName);
                             }
                         });
