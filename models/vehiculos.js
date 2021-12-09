@@ -8,8 +8,8 @@ class Vehiculos{
         this._listado={};
     }
 
-    processString(s) { // 
-        return s.toLowerCase().replace(' ', '_').replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, ''); // string a minusculas, reemplaza espacios por guion bajo
+    processString(s) { //
+        return s.toLowerCase().replace(/[&\/\\#,+()$~%.'":*?<>{}-]/g, '').replace(/\s+/g, '_'); // string a minusculas, reemplaza espacios por guion bajo
     }
 
     escapeComma(s) {
@@ -30,6 +30,7 @@ class Vehiculos{
     getListadoArray(vehiculos) {
         const listado = [];
         const columns = [];
+        const repeatedColumns = [];
         Object.keys(vehiculos)
             .forEach((key) => vehiculos[key].specs
                 .forEach((spec) => {
@@ -37,8 +38,11 @@ class Vehiculos{
                     spec.specs
                         .forEach((innerSpec) => {
                             const columnName = prefix + this.processString(innerSpec.name);
-                            if (columns.indexOf((c) => c.replace('_', '') === columnName.replace('_', '')) === -1) {
+                            const i = columns.findIndex((c) => c.replace(/_/g, '') === columnName.replace(/_/g, ''));
+                            if (i === -1) {
                                 columns.push(columnName);
+                            } else {
+                                repeatedColumns.push({name: columnName, pointsTo: i});
                             }
                         });
                 }));
@@ -61,6 +65,12 @@ class Vehiculos{
 
                 columns.forEach((column) => {
                     tempVehiculo[column] = tempSpecs[column] ? tempSpecs[column] : '';
+                });
+
+                repeatedColumns.forEach((rColumn) => {
+                    if (tempSpecs[rColumn.name]) {
+                        tempVehiculo[columns[rColumn.pointsTo]] = tempSpecs[rColumn.name];
+                    }
                 });
                 
                 listado.push(tempVehiculo);
